@@ -20,6 +20,23 @@ export class AuthService {
     private readonly repository = new AuthRepository(),
   ) { }
 
+  async me(userId: string) {
+    const user = await this.repository.findById(userId);
+    if (!user) {
+      throw new AppError({
+          statusCode: HTTP_STATUS.NOT_FOUND,
+      code: ERROR_CODES.USER_NOT_FOUND,
+      message: 'User not found.',
+      });
+
+    }
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    }
+  }
+
   async login(data: LoginSchema){
     const user =await this.repository.findByEmail(data.email);
     if(!user){

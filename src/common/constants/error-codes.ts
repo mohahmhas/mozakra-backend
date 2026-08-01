@@ -18,6 +18,8 @@ export const ERROR_CODES = {
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
 
   TOKEN_INVALID: 'TOKEN_INVALID',
+
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
 } as const;
 
 export type ErrorCode =

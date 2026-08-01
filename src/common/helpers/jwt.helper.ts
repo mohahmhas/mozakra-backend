@@ -34,8 +34,13 @@ export const verifyAccessToken = (
 export const verifyRefreshToken = (
   token: string,
 ): JwtPayload => {
-  return jwt.verify(
-    token,
-    env.JWT_REFRESH_SECRET,
-  ) as JwtPayload;
+  const payload = jwt.verify(
+  token,
+  env.JWT_SECRET,
+);
+if (typeof payload === 'string') {
+  throw new Error('Invalid token payload.');
+}
+
+return payload as JwtPayload;
 };

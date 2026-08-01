@@ -3,6 +3,13 @@ import { prisma } from '../../../config/prisma.js';
 import type { Prisma, User } from '../../../generated/prisma/client.js';
 
 export class AuthRepository {
+  async findById(id: string) {
+  return prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+}
   async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: {
