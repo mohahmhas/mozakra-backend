@@ -15,21 +15,42 @@ export class AuthController {
 
     login = async (req: Request, res: Response): Promise<void> => {
         const result =await this.service.login(req.body);
+        res.cookie('refreshToken',
+         result.refreshToken,{
+            httpOnly: true,
+             secure:
+            process.env.NODE_ENV === 'production',
+            sameSite: 'strict', 
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+         });
         res.status(200).json({
             success: true,
             message: 'User logged in successfully',
-            data: result,
+            data: {
+                user:result.user,
+                accessToken: result.accessToken
+            },
         });
     }
 
     register = async (req: Request, res: Response) :Promise<void>=>{
 
         const result = await this.service.register(req.body);
+        res.cookie('refreshToken',
+         result.refreshToken,{
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
         
         res.status(201).json({
              success: true,
              message: 'User registered successfully',
-             data: result,
+             data: {
+              user: result.user,
+              accessToken: result.accessToken,
+            },
         });
   
 

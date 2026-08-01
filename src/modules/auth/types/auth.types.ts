@@ -6,3 +6,8 @@ export interface AuthTokens {
 }
 
 export type AuthUser = Omit<User, 'password'>;
+export interface AuthResponse {
+  user: AuthUser;
+  accessToken: string;
+  refreshToken: string;
+}

@@ -13,12 +13,34 @@ import { hashPassword } from '../../../common/helpers/password.helper.js';
 
 import { comparePassword } from '../../../common/helpers/password.helper.js';
 
-import { generateAccessToken, generateRefreshToken } from '../../../common/helpers/jwt.helper.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../../common/helpers/jwt.helper.js';
 
 export class AuthService {
   constructor(
     private readonly repository = new AuthRepository(),
   ) { }
+
+
+  async refresh(
+    refreshToken:string,
+){
+  
+    const payload = verifyRefreshToken(refreshToken);
+    const user = await this.repository.findById(payload.userId);
+    if (!user) {
+      throw new AppError({
+        statusCode: HTTP_STATUS.NOT_FOUND,
+        code: ERROR_CODES.USER_NOT_FOUND,
+        message: 'User not found.',
+      });
+    }
+    const accessToken = generateAccessToken({
+      userId: user.id,
+    });
+    return {
+      accessToken,
+    };
+}
 
   async me(userId: string) {
     const user = await this.repository.findById(userId);
@@ -65,9 +87,11 @@ export class AuthService {
             userId: user.id,
         });
         return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+          user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+             },
             accessToken,
             refreshToken,
         };
@@ -102,9 +126,11 @@ export class AuthService {
       userId: user.id,
     });
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+       user: {
+           id: user.id,
+           name: user.name,
+           email: user.email,
+         },
       accessToken,
       refreshToken,
     };
