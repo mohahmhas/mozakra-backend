@@ -7,6 +7,13 @@ import { authMiddleware } from "../../../middlewares/auth.middleware.js";
 
 const router = Router();
 const controller = new AuthController();
+router.post(
+
+    '/logout',
+
+    controller.logout,
+
+);
 
 router.post(
 

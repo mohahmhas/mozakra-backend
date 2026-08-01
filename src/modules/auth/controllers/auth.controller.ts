@@ -11,7 +11,21 @@
         constructor(private readonly service = new AuthService()) {}
 
 
-        
+        logout = async (req: Request, res: Response): Promise<void> => {
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                secure: env.NODE_ENV === 'production',
+                sameSite: 'strict',
+            });
+            res.status(200).json({
+
+                  success:true,
+
+                  message:'Logout successful',
+
+                });
+
+        };
 
         refresh = async (req: Request, res: Response): Promise<void> => {
             const token =
