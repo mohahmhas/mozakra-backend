@@ -37,8 +37,10 @@ export class AuthService {
     const accessToken = generateAccessToken({
       userId: user.id,
     });
+    const newRefreshToken = generateRefreshToken({ userId: user.id,})
     return {
       accessToken,
+    refreshToken: newRefreshToken,
     };
 }
 

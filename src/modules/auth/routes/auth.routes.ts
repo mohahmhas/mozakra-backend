@@ -8,6 +8,14 @@ import { authMiddleware } from "../../../middlewares/auth.middleware.js";
 const router = Router();
 const controller = new AuthController();
 
+router.post(
+
+    '/refresh-token',
+
+    controller.refresh,
+
+);
+
 router.get('/me',authMiddleware ,controller.me);
    
 
