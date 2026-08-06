@@ -25,21 +25,19 @@ model User {
 }
 
 model Session {
+  id               String   @id @default(cuid())
 
-  id        String   @id @default(cuid())
+  userId           String
 
-  userId    String
+  refreshTokenHash String?
 
-  refreshTokenHash String
+  expiresAt        DateTime
 
-  expiresAt DateTime
+  createdAt        DateTime @default(now())
 
-  createdAt DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields:[userId],references:[id],onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-
 }

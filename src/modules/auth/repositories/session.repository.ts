@@ -55,4 +55,34 @@ export class SessionRepository {
       },
     });
   }
+
+  async findById(
+    id: string,
+): Promise<Session | null> {
+    return prisma.session.findUnique({
+        where: {
+            id,
+        },
+    });
 }
+
+async updateRefreshTokenHash(
+    sessionId: string,
+    refreshTokenHash: string,
+): Promise<void> {
+
+    await prisma.session.update({
+
+        where:{
+            id:sessionId,
+        },
+
+        data:{
+            refreshTokenHash,
+        },
+
+    });
+
+}
+}
+
