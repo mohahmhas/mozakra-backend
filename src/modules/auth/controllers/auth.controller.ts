@@ -93,9 +93,9 @@
             result.refreshToken,{
                 httpOnly: true,
                 secure:
-                process.env.NODE_ENV === 'production',
+                env.NODE_ENV === 'production',
                 sameSite: 'strict', 
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                maxAge: env.JWT_REFRESH_EXPIRES_IN_DAYS, // 7 days
             });
             res.status(200).json({
                 success: true,
@@ -113,7 +113,7 @@
             res.cookie('refreshToken',
             result.refreshToken,{
                 httpOnly: true, 
-                secure: process.env.NODE_ENV === 'production',
+                secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });

@@ -55,5 +55,13 @@
       throw new Error('Invalid token payload.');
     }
 
-    return payload as RefreshTokenPayload;
+   const {
+    userId,
+    sessionId,
+} = payload;
+
+return {
+    userId,
+    sessionId,
+};
   };

@@ -27,82 +27,84 @@ export class AuthService {
 
 
 
-async register(data: RegisterInput) {
-  const existingUser = await this.repository.findByEmail(data.email);
+  async register(data: RegisterInput) {
+    const existingUser = await this.repository.findByEmail(data.email);
 
-  if (existingUser) {
-    throw new AppError({
-      statusCode: HTTP_STATUS.CONFLICT,
-      code: ERROR_CODES.EMAIL_ALREADY_EXISTS,
-      message: 'This User already exists',
+    if (existingUser) {
+      throw new AppError({
+        statusCode: HTTP_STATUS.CONFLICT,
+        code: ERROR_CODES.EMAIL_ALREADY_EXISTS,
+        message: 'This User already exists',
+      });
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+
+    const user = await this.repository.create({
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
     });
+
+    const { accessToken, refreshToken } =
+      await this.createSessionTokens(user.id);
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      accessToken,
+      refreshToken,
+    };
   }
 
-  const hashedPassword = await hashPassword(data.password);
+  async login(data: LoginSchema) {
+    const user = await this.repository.findByEmail(data.email);
 
-  const user = await this.repository.create({
-    name: data.name,
-    email: data.email,
-    password: hashedPassword,
-  });
+    if (!user) {
+      throw new AppError({
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
+        code: ERROR_CODES.INVALID_CREDENTIALS,
+        message: 'Invalid email or password',
+      });
+    }
 
-  const { accessToken, refreshToken } =
-    await this.createSessionTokens(user.id);
+    const isPasswordValid = await comparePassword(
+      data.password,
+      user.password,
+    );
 
-  return {
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    },
-    accessToken,
-    refreshToken,
-  };
-}
+    if (!isPasswordValid) {
+      throw new AppError({
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
+        code: ERROR_CODES.INVALID_CREDENTIALS,
+        message: 'Invalid email or password',
+      });
+    }
 
-async login(data: LoginSchema) {
-  const user = await this.repository.findByEmail(data.email);
+    const { accessToken, refreshToken } =
+      await this.createSessionTokens(user.id);
 
-  if (!user) {
-    throw new AppError({
-      statusCode: HTTP_STATUS.UNAUTHORIZED,
-      code: ERROR_CODES.INVALID_CREDENTIALS,
-      message: 'Invalid email or password',
-    });
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      accessToken,
+      refreshToken,
+    };
   }
-
-  const isPasswordValid = await comparePassword(
-    data.password,
-    user.password,
-  );
-
-  if (!isPasswordValid) {
-    throw new AppError({
-      statusCode: HTTP_STATUS.UNAUTHORIZED,
-      code: ERROR_CODES.INVALID_CREDENTIALS,
-      message: 'Invalid email or password',
-    });
-  }
-
-  const { accessToken, refreshToken } =
-    await this.createSessionTokens(user.id);
-
-  return {
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    },
-    accessToken,
-    refreshToken,
-  };
-}
 
   async refresh(
     refreshToken: string,
   ) {
 
     const payload = verifyRefreshToken(refreshToken);
+    const session = await this.sessionRepository.findById(payload.sessionId);
+
     const user = await this.repository.findById(payload.userId);
     if (!user) {
       throw new AppError({
@@ -111,20 +113,35 @@ async login(data: LoginSchema) {
         message: 'User not found.',
       });
     }
-    
-    const session = await this.sessionRepository.findById(payload.sessionId);
-    if (!session ) {
+
+    if (!session) {
       throw new AppError({
         statusCode: HTTP_STATUS.NOT_FOUND,
         code: ERROR_CODES.SESSION_NOT_FOUND,
         message: 'Session not found.',
       });
     }
+    if (session.expiresAt < new Date()) {
+      await this.sessionRepository.delete(session.id);
+
+      throw new AppError({
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
+        code: ERROR_CODES.SESSION_EXPIRED,
+        message: "Session expired.",
+      });
+    }
+    if (!session.refreshTokenHash) {
+      throw new AppError({
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
+        code: ERROR_CODES.INVALID_REFRESH_TOKEN,
+        message: 'Invalid refresh token.',
+      });
+    }
 
     const isRefreshTokenValid =
       await comparePassword(
         refreshToken,
-        session.refreshTokenHash!,
+        session.refreshTokenHash,
       );
 
     if (!isRefreshTokenValid) {
@@ -146,20 +163,16 @@ async login(data: LoginSchema) {
       userId: user.id,
     });
 
-    if (session.expiresAt < new Date()) {
-  await this.sessionRepository.delete(session.id);
 
-  throw new AppError({
-    statusCode: HTTP_STATUS.UNAUTHORIZED,
-    code: ERROR_CODES.SESSION_EXPIRED,
-    message: "Session expired.",
-  });
-}
     return {
       accessToken,
       refreshToken: newRefreshToken,
     };
   }
+
+
+
+
 
   async me(userId: string) {
     const user = await this.repository.findById(userId);
@@ -180,41 +193,41 @@ async login(data: LoginSchema) {
 
 
   private async createSessionTokens(userId: string) {
-  const session = await this.sessionRepository.create({
-    user: {
-      connect: {
-        id: userId,
+    const session = await this.sessionRepository.create({
+      user: {
+        connect: {
+          id: userId,
+        },
       },
-    },
-    expiresAt: new Date(
-      Date.now() +  env.JWT_REFRESH_EXPIRES_IN_DAYS *
-      24 *
-      60 *
-      60 *
-      1000,
-    ),
-  });
+      expiresAt: new Date(
+        Date.now() + env.JWT_REFRESH_EXPIRES_IN_DAYS *
+        24 *
+        60 *
+        60 *
+        1000,
+      ),
+    });
 
-  const refreshToken = generateRefreshToken({
-    userId,
-    sessionId: session.id,
-  });
+    const refreshToken = generateRefreshToken({
+      userId,
+      sessionId: session.id,
+    });
 
-  const refreshTokenHash = await hashPassword(refreshToken);
+    const refreshTokenHash = await hashPassword(refreshToken);
 
-  await this.sessionRepository.updateRefreshTokenHash(
-    session.id,
-    refreshTokenHash,
-  );
+    await this.sessionRepository.updateRefreshTokenHash(
+      session.id,
+      refreshTokenHash,
+    );
 
-  const accessToken = generateAccessToken({
-    userId,
-  });
+    const accessToken = generateAccessToken({
+      userId,
+    });
 
-  return {
-    accessToken,
-    refreshToken,
-  };
-}
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 }
 

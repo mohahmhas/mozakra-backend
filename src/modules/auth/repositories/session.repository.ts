@@ -24,17 +24,7 @@ export class SessionRepository {
     });
   }
 
-  async update(
-    sessionId: string,
-    data: Prisma.SessionUpdateInput,
-  ): Promise<Session> {
-    return prisma.session.update({
-      where: {
-        id: sessionId,
-      },
-      data,
-    });
-  }
+ 
 
   async delete(
     sessionId: string,
