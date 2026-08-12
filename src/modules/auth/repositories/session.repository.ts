@@ -29,6 +29,7 @@ export class SessionRepository {
   async delete(
     sessionId: string,
   ): Promise<void> {
+    console.log("Deleting session with ID:", sessionId);  
     await prisma.session.delete({
       where: {
         id: sessionId,

@@ -229,5 +229,23 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async logout(refreshToken: string) : Promise<void>{
+    const payload = verifyRefreshToken(refreshToken);
+    console.log("payload in logout:", payload.sessionId);
+    const session = await this.sessionRepository.findById(payload.sessionId);
+    if (!session) {
+      throw new AppError ({
+        statusCode: HTTP_STATUS.NOT_FOUND,      
+        code: ERROR_CODES.SESSION_NOT_FOUND,
+         message: 'Session not found .',
+
+      })
+    }
+
+    await this.sessionRepository.delete(session.id);
+    
+
+  }
 }
 

@@ -12,6 +12,11 @@
 
 
         logout = async (req: Request, res: Response): Promise<void> => {
+            const refreshToken = req.cookies.refreshToken;
+            console.log('Refresh Token:', refreshToken); // Log the refresh token for debugging
+            if (refreshToken) {
+                await this.service.logout(refreshToken);    
+            }
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: env.NODE_ENV === 'production',
@@ -95,7 +100,7 @@
                 secure:
                 env.NODE_ENV === 'production',
                 sameSite: 'strict', 
-                maxAge: env.JWT_REFRESH_EXPIRES_IN_DAYS, // 7 days
+                maxAge: env.JWT_REFRESH_EXPIRES_IN_DAYS * 24 * 60 * 60 * 1000, // 7 days
             });
             res.status(200).json({
                 success: true,
@@ -115,7 +120,7 @@
                 httpOnly: true, 
                 secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                maxAge: env.JWT_REFRESH_EXPIRES_IN_DAYS  * 24 * 60 * 60 * 1000, // 7 days
             });
             
             res.status(201).json({
