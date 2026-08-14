@@ -7,13 +7,13 @@
 
     import { env } from '../../../config/env.js';
 
+    
     export class AuthController {
         constructor(private readonly service = new AuthService()) {}
 
 
         logout = async (req: Request, res: Response): Promise<void> => {
             const refreshToken = req.cookies.refreshToken;
-            console.log('Refresh Token:', refreshToken); // Log the refresh token for debugging
             if (refreshToken) {
                 await this.service.logout(refreshToken);    
             }

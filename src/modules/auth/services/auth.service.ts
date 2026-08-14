@@ -232,7 +232,6 @@ export class AuthService {
 
   async logout(refreshToken: string) : Promise<void>{
     const payload = verifyRefreshToken(refreshToken);
-    console.log("payload in logout:", payload.sessionId);
     const session = await this.sessionRepository.findById(payload.sessionId);
     if (!session) {
       throw new AppError ({
