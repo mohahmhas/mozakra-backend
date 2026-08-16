@@ -105,14 +105,14 @@ export class AuthService {
     const payload = verifyRefreshToken(refreshToken);
     const session = await this.sessionRepository.findById(payload.sessionId);
 
-    const user = await this.repository.findById(payload.sub);
-    if (!user) {
-      throw new AppError({
-        statusCode: HTTP_STATUS.NOT_FOUND,
-        code: ERROR_CODES.USER_NOT_FOUND,
-        message: 'User not found.',
-      });
-    }
+    // const user = await this.repository.findById(payload.sub);
+    // if (!user) {
+    //   throw new AppError({
+    //     statusCode: HTTP_STATUS.NOT_FOUND,
+    //     code: ERROR_CODES.USER_NOT_FOUND,
+    //     message: 'User not found.',
+    //   });
+    // }
 
     if (!session) {
       throw new AppError({
@@ -121,6 +121,13 @@ export class AuthService {
         message: 'Session not found.',
       });
     }
+  if(session.userId !== payload.sub){
+    throw new AppError({
+      statusCode: HTTP_STATUS.UNAUTHORIZED,
+      code: ERROR_CODES.UNAUTHORIZED,
+      message: 'Unauthorized refresh attempt.',
+    })
+  }
     if (session.expiresAt < new Date()) {
       await this.sessionRepository.delete(session.id);
 
@@ -145,7 +152,7 @@ export class AuthService {
       );
 
     if (!isRefreshTokenValid) {
-      await this.sessionRepository.deleteAllByUserId(user.id);
+      await this.sessionRepository.deleteAllByUserId(payload.sub);
 
       throw new AppError({
         statusCode: HTTP_STATUS.UNAUTHORIZED,
@@ -154,14 +161,14 @@ export class AuthService {
       });
     }
     const newRefreshToken = generateRefreshToken({
-      sub: user.id,
+      sub: payload.sub,
       sessionId: session.id,
-      jti: crypto.randomUUID(),
-    })
+    });
+
     const newRefreshTokenHash = await hashPassword(newRefreshToken);
     await this.sessionRepository.updateRefreshTokenHash(session.id, newRefreshTokenHash);
     const accessToken = generateAccessToken({
-      userId: user.id,
+      sub: payload.sub,
     });
 
 
@@ -212,7 +219,6 @@ export class AuthService {
     const refreshToken = generateRefreshToken({
       sub: userId,
       sessionId: session.id,
-      jti: crypto.randomUUID(),
     });
 
     const refreshTokenHash = await hashPassword(refreshToken);
@@ -223,7 +229,7 @@ export class AuthService {
     );
 
     const accessToken = generateAccessToken({
-      userId,
+      sub: userId,
     });
 
     return {

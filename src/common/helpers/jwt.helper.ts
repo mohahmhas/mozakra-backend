@@ -6,7 +6,8 @@
   //   userId: string;
   // }
   export interface AccessTokenPayload {
-    userId: string;
+    sub: string;
+  jti: string;
   }
 
   // export interface RefreshTokenPayload {
@@ -51,17 +52,17 @@
     );
   };
 
-  export const verifyAccessToken = (
-    token: string,
-  ): AccessTokenPayload => {
-    const payload = jwt.verify(token, env.JWT_SECRET);
+export const verifyAccessToken = (
+  token: string,
+): AccessTokenPayload => {
+  const payload = jwt.verify(token, env.JWT_SECRET);
 
-    if (typeof payload === 'string') {
-      throw new Error('Invalid token payload.');
-    }
+  if (typeof payload === "string") {
+    throw new Error("Invalid token payload.");
+  }
 
-    return payload as AccessTokenPayload;
-  };
+  return payload as AccessTokenPayload;
+};
 
   export const verifyRefreshToken = (
     token: string,

@@ -48,7 +48,7 @@ if (!token) {
     const payload = verifyAccessToken(token);
 
     req.user = {
-      id: payload.userId,
+       id: payload.sub,
     };
 
     next();
