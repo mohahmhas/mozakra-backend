@@ -105,7 +105,7 @@ export class AuthService {
     const payload = verifyRefreshToken(refreshToken);
     const session = await this.sessionRepository.findById(payload.sessionId);
 
-    const user = await this.repository.findById(payload.userId);
+    const user = await this.repository.findById(payload.sub);
     if (!user) {
       throw new AppError({
         statusCode: HTTP_STATUS.NOT_FOUND,
@@ -154,8 +154,9 @@ export class AuthService {
       });
     }
     const newRefreshToken = generateRefreshToken({
-      userId: user.id,
+      sub: user.id,
       sessionId: session.id,
+      jti: crypto.randomUUID(),
     })
     const newRefreshTokenHash = await hashPassword(newRefreshToken);
     await this.sessionRepository.updateRefreshTokenHash(session.id, newRefreshTokenHash);
@@ -233,6 +234,13 @@ export class AuthService {
   async logout(refreshToken: string) : Promise<void>{
     const payload = verifyRefreshToken(refreshToken);
     const session = await this.sessionRepository.findById(payload.sessionId);
+    if(session?.userId !== payload.sub){
+      throw new AppError({
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
+        code: ERROR_CODES.UNAUTHORIZED,
+        message: 'Unauthorized logout attempt.',
+      })
+    }
     if (!session) {
       throw new AppError ({
         statusCode: HTTP_STATUS.NOT_FOUND,      

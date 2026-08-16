@@ -9,11 +9,16 @@
     userId: string;
   }
 
-  export interface RefreshTokenPayload {
-    userId: string;
-    sessionId: string;
-  }
+  // export interface RefreshTokenPayload {
+  //   userId: string;
+  //   sessionId: string;
+  // }
 
+  export interface RefreshTokenPayload {
+    sub: string;
+    sessionId: string;
+    jti: string;
+  } 
 
   export const generateAccessToken = (
     payload: AccessTokenPayload,
@@ -56,12 +61,14 @@
     }
 
    const {
-    userId,
+    sub,
     sessionId,
+    jti
 } = payload;
 
 return {
-    userId,
+    sub,
     sessionId,
+    jti
 };
   };
