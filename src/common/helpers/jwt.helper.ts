@@ -20,20 +20,35 @@
     jti: string;
   } 
 
-  export const generateAccessToken = (
-    payload: AccessTokenPayload,
-  ): string => {
-    return jwt.sign(payload, env.JWT_SECRET, {
+ export const generateAccessToken = (
+  payload: Omit<AccessTokenPayload, "jti">,
+): string => {
+  return jwt.sign(
+    {
+      ...payload,
+      jti: crypto.randomUUID(),
+    },
+    env.JWT_SECRET,
+    {
       expiresIn: env.JWT_ACCESS_EXPIRES_IN,
-    });
-  };
+    },
+  );
+};
+
 
   export const generateRefreshToken = (
-    payload: RefreshTokenPayload,
+    payload: Omit<RefreshTokenPayload, "jti">,
   ): string => {
-    return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-      expiresIn: env.JWT_REFRESH_EXPIRES_IN,
-    });
+    return jwt.sign(
+      {
+        ...payload,
+        jti: crypto.randomUUID(),
+      },
+      env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+      }
+    );
   };
 
   export const verifyAccessToken = (
@@ -60,15 +75,5 @@
       throw new Error('Invalid token payload.');
     }
 
-   const {
-    sub,
-    sessionId,
-    jti
-} = payload;
-
-return {
-    sub,
-    sessionId,
-    jti
-};
+    return payload as RefreshTokenPayload;    
   };

@@ -210,8 +210,9 @@ export class AuthService {
     });
 
     const refreshToken = generateRefreshToken({
-      userId,
+      sub: userId,
       sessionId: session.id,
+      jti: crypto.randomUUID(),
     });
 
     const refreshTokenHash = await hashPassword(refreshToken);
