@@ -9,4 +9,5 @@ export const registerRoutes = (app: Express): void => {
   app.use(healthRouter);
 
   app.use('/api/v1', apiRouter);
+  app.use('/api/v1', apiRouter);
 };

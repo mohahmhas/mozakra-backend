@@ -9,19 +9,21 @@ const router = Router();
 const sessionController = new SessionController();
 
 router.get(
-  "/sessions",
+  "/",
   authMiddleware,
   sessionController.getSessions,
 );
 
 router.delete(
-  "/sessions/:sessionId",
+  "/:sessionId",
   authMiddleware,
   sessionController.revokeSession,
 );
 
 router.delete(
-  "/sessions",
+  "/",
   authMiddleware,
   sessionController.revokeAllSessions,
 );
+
+export default router;
