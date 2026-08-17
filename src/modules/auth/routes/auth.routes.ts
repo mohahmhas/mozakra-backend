@@ -7,9 +7,7 @@ import { authMiddleware } from "../../../middlewares/auth.middleware.js";
 
 const router = Router();
 const controller = new AuthController();
-const sessioonController = new AuthController();
 
-router.get('/session',);
 
 router.post(
 

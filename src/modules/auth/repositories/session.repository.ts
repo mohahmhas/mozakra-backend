@@ -24,6 +24,29 @@ export class SessionRepository {
     });
   }
 
+  async findByUserIdForManagement(
+    userId: string,
+  ){
+    return prisma.session.findMany({
+      where:{
+        userId,
+      },
+      select:{
+        id: true,
+      expiresAt: true,
+      createdAt: true,
+      updatedAt: true,
+      lastUsedAt: true,// here in this session.repository.ts file i have error here Property 'lastUsedAt' does not exist on type 'SessionSelect'.ts(2339) 
+      ipAddress: true,
+      userAgent: true,
+      },
+      orderBy:{
+        lastUsedAt: "desc",
+      },
+    });
+  }
+  
+
  
 
   async delete(
