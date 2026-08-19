@@ -5,13 +5,16 @@ import { AppError } from '../../../common/errors/app-error.js';
 import { HTTP_STATUS } from '../../../common/constants/http-status.js';
 import { ERROR_CODES } from '../../../common/constants/error-codes.js';
 
+
+
+
 export class SessionService {
   constructor(
     private readonly sessionRepository = new SessionRepository(),
   ) {}
 
   async getUserSessions(userId: string) {
-    return this.sessionRepository.findByUserId(userId);
+    return this.sessionRepository.findByUserIdForManagement(userId);
   }
 
   async revokeSession(

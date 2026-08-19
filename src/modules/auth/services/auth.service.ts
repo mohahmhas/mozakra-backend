@@ -15,8 +15,11 @@ import { hashPassword } from '../../../common/helpers/password.helper.js';
 
 import { comparePassword } from '../../../common/helpers/password.helper.js';
 
+import type { SessionMetadata } from '../types/auth.types.js';
+
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../../common/helpers/jwt.helper.js';
 import { env } from '../../../config/env.js';
+
 
 export class AuthService {
   constructor(
@@ -27,7 +30,7 @@ export class AuthService {
 
 
 
-  async register(data: RegisterInput) {
+  async register(data: RegisterInput,metadata: SessionMetadata) {
     const existingUser = await this.repository.findByEmail(data.email);
 
     if (existingUser) {
@@ -47,7 +50,7 @@ export class AuthService {
     });
 
     const { accessToken, refreshToken } =
-      await this.createSessionTokens(user.id);
+      await this.createSessionTokens(user.id,metadata);
 
     return {
       user: {
@@ -60,7 +63,7 @@ export class AuthService {
     };
   }
 
-  async login(data: LoginSchema) {
+  async login(data: LoginSchema,metadata: SessionMetadata) {
     const user = await this.repository.findByEmail(data.email);
 
     if (!user) {
@@ -85,7 +88,7 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken } =
-      await this.createSessionTokens(user.id);
+      await this.createSessionTokens(user.id,metadata);
 
     return {
       user: {
@@ -104,16 +107,6 @@ export class AuthService {
 
     const payload = verifyRefreshToken(refreshToken);
     const session = await this.sessionRepository.findById(payload.sessionId);
-
-    // const user = await this.repository.findById(payload.sub);
-    // if (!user) {
-    //   throw new AppError({
-    //     statusCode: HTTP_STATUS.NOT_FOUND,
-    //     code: ERROR_CODES.USER_NOT_FOUND,
-    //     message: 'User not found.',
-    //   });
-    // }
-
     if (!session) {
       throw new AppError({
         statusCode: HTTP_STATUS.NOT_FOUND,
@@ -166,7 +159,25 @@ export class AuthService {
     });
 
     const newRefreshTokenHash = await hashPassword(newRefreshToken);
-    await this.sessionRepository.updateRefreshTokenHash(session.id, newRefreshTokenHash);
+    const rotationSuccessded= await this.sessionRepository.rotateRefreshToken(
+      session.id,
+      session.refreshTokenHash,
+      newRefreshTokenHash,
+      new Date(),
+    );
+    if(!rotationSuccessded){
+       await this.sessionRepository.deleteAllByUserId(
+      payload.sub,
+    );
+
+    throw new AppError({
+      statusCode: HTTP_STATUS.UNAUTHORIZED,
+      code: ERROR_CODES.INVALID_REFRESH_TOKEN,
+      message:
+        'Refresh token reuse detected. Please login again.',
+    });
+    }
+
     const accessToken = generateAccessToken({
       sub: payload.sub,
     });
@@ -200,8 +211,9 @@ export class AuthService {
   }
 
 
-  private async createSessionTokens(userId: string) {
+  private async createSessionTokens(userId: string ,metadata:SessionMetadata) {
     const session = await this.sessionRepository.create({
+   
       user: {
         connect: {
           id: userId,
@@ -214,6 +226,11 @@ export class AuthService {
         60 *
         1000,
       ),
+        ipAddress: metadata.ipAddress ?? null,
+    userAgent: metadata.userAgent ?? null,
+
+
+      lastUsedAt: new Date(),
     });
 
     const refreshToken = generateRefreshToken({
@@ -223,10 +240,15 @@ export class AuthService {
 
     const refreshTokenHash = await hashPassword(refreshToken);
 
-    await this.sessionRepository.updateRefreshTokenHash(
-      session.id,
-      refreshTokenHash,
-    );
+    await this.sessionRepository.update(
+  session.id,
+  {
+    refreshTokenHash: refreshTokenHash,
+  
+  },
+);
+
+
 
     const accessToken = generateAccessToken({
       sub: userId,

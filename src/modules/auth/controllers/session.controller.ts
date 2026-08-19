@@ -35,7 +35,7 @@ export class SessionController {
     req: Request,
     res: Response,
   ): Promise<void> => {
-    const sessionId = req.params;
+    const sessionId = req.params.sessionId;
    if (typeof sessionId !== "string") {
     throw new AppError({
       statusCode: HTTP_STATUS.BAD_REQUEST,
