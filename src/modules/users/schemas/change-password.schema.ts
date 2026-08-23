@@ -16,4 +16,4 @@ export const changePasswordSchema = z.object({
     },
 );
 
-export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

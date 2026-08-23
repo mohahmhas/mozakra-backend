@@ -4,7 +4,9 @@ import type {
 } from "express"; 
 
 import { UserService } from "../services/user.service.js";
-import { success } from "zod";
+
+import type { ChangePasswordInput } from "../schemas/change-password.schema.js";
+
 
 export class UserController {
     constructor(
@@ -43,6 +45,14 @@ export class UserController {
         res.status(200).json({
             success:true,
             message:"Account deleted successfully"
+        })
+    }
+
+    changePassword= async (req:Request,res:Response):Promise<void>=>{
+        await this.service.changePassword(req.user!.id,req.body);
+        res.status(200).json({
+            success:true,
+            message:"Password changed successfully"
         })
     }
 }
