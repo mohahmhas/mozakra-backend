@@ -22,6 +22,7 @@ model User {
   updatedAt DateTime @updatedAt
   
   sessions Session[]
+  courses  Course[]
 }
 
 model Session {
@@ -48,4 +49,25 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+
+  title       String
+  description String?
+  thumbnail   String?
+
+  price       Decimal  @default(0)
+
+  isPublished Boolean  @default(false)
+
+  instructorId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+ instructor User @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@index([instructorId])
 }
