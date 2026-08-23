@@ -52,7 +52,8 @@ if (!token) {
     };
 
     next();
-  } catch {
+  } catch (error){
+     console.error('JWT verification error:', error);
     next(
       new AppError({
         statusCode: HTTP_STATUS.UNAUTHORIZED,
