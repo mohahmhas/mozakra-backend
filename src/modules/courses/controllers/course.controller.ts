@@ -97,6 +97,25 @@ getCourse = async (
     })
   }
 
+  deleteCourse = async (req:Request,res:Response):Promise<void>=>{
+    const {courseId} = req.params;
+    if(typeof courseId !== 'string'){
+        throw new AppError({
+            statusCode: HTTP_STATUS.BAD_REQUEST,
+            code: ERROR_CODES.INVALID_COURSE_ID,
+            message: 'Invalid course ID.',
+          });
+    }
+    await this.service.deleteCourse(
+      req.user!.id,
+      courseId,
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Course deleted successfully.',
+      });
+  }
 
 
 }

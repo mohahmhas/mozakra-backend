@@ -106,6 +106,33 @@ async getCourse(coursId: string){
 
 }
 
+async deleteCourse(
+  instructorId: string,
+  courseId: string,
+): Promise<void> {
+   const course =
+    await this.repository.findById(courseId);
+
+      if (!course) {
+    throw new AppError({
+      statusCode: HTTP_STATUS.NOT_FOUND,
+      code: ERROR_CODES.COURSE_NOT_FOUND,
+      message: 'Course not found.',
+    });
+  }
+
+  if (course.instructorId !== instructorId) {
+    throw new AppError({
+      statusCode: HTTP_STATUS.FORBIDDEN,
+      code: ERROR_CODES.FORBIDDEN,
+      message:
+        'You are not allowed to delete this course.',
+    });
+  } 
+
+
+  await this.repository.delete(courseId);
+}
 
 
 }

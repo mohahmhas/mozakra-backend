@@ -41,6 +41,12 @@ router.patch( '/:courseId',
   }),
   courseController.updateCourse,
 
+);
+
+router.delete(
+  '/:courseId',
+  authMiddleware,
+  courseController.deleteCourse,
 )
 
 export default router;

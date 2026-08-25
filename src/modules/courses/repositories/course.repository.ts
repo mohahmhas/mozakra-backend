@@ -18,4 +18,8 @@ export class CourseRepository {
     async update(id: string, data: Prisma.CourseUpdateInput): Promise<Course>{
         return prisma.course.update({where:{id}, data});
     }
+
+    async delete(id: string): Promise<void>{
+        await prisma.course.delete({where:{id}});
+    }
 }
