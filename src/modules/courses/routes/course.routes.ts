@@ -34,4 +34,13 @@ router.get(
   courseController.getCourse,
 );
 
+router.patch( '/:courseId',
+  authMiddleware,
+  validate({
+    body: createCourseSchema,
+  }),
+  courseController.updateCourse,
+
+)
+
 export default router;
