@@ -52,10 +52,13 @@ model Session {
 }
 
 model Course {
+
   id          String   @id @default(cuid())
 
   title       String
+
   description String?
+
   thumbnail   String?
 
   price       Decimal  @default(0)
@@ -65,9 +68,42 @@ model Course {
   instructorId String
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
- instructor User @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  instructor User @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
 
   @@index([instructorId])
+
+}
+
+
+model Lesson {
+
+  id          String   @id @default(cuid())
+
+  title       String
+
+  description String?
+
+  videoUrl    String?
+
+  duration    Int?
+
+  order       Int
+
+  courseId    String
+
+  createdAt   DateTime @default(now())
+
+  updatedAt   DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+
+  @@unique([courseId, order])
+
 }
