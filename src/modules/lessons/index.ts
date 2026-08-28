@@ -1,0 +1,1 @@
+export { default as lessonRouter } from './routes/lesson.routes.js';

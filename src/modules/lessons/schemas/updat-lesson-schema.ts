@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
-export const createLessonSchema = z.object({
+
+export const updateLessonSchema = z.object({
   title: z
     .string()
     .trim()
     .min(3, 'Title must be at least 3 characters')
-    .max(100, 'Title must not exceed 100 characters'),
+    .max(100, 'Title must not exceed 100 characters')
+    .optional(),
 
   description: z
     .string()
@@ -27,12 +29,11 @@ export const createLessonSchema = z.object({
   order: z
     .number()
     .int('Order must be an integer')
-    .positive('Order must be greater than 0'),
+    .positive('Order must be greater than 0')
+    .optional(),
 });
 
 
-
-export type CreateLessonInput = z.infer<
-  typeof createLessonSchema
+export type UpdateLessonInput = z.infer<
+  typeof updateLessonSchema
 >;
-
