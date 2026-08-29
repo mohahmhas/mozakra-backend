@@ -16,7 +16,7 @@ export const createCourseSchema = z.object({
   thumbnail: z
     .string()
     .url('Thumbnail must be a valid URL.')
-    .optional(),
+    .optional().nullable(),
 
   price: z
     .number()

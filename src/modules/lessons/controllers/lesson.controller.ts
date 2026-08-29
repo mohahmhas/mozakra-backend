@@ -9,7 +9,7 @@ export class LessonController {
 
     createLesson = async (req: Request, res: Response): Promise<void> => {
         const lesson = await this.service.createLesson(
-            req.user!.id, req.params.coursId as string, req.body);
+            req.user!.id, req.params.courseId as string, req.body);
 
         res.status(201).json({
             success: true,
@@ -19,7 +19,7 @@ export class LessonController {
     }
 
     getCoursLesson = async (req: Request, res: Response): Promise<void> => {
-        const lessons = await this.service.getCourseLessons(req.params.coursId as string);
+        const lessons = await this.service.getCourseLessons(req.params.courseId as string);
         res.status(200).json({
             success: true,
             message: 'Lessons retrieved successfully.',
