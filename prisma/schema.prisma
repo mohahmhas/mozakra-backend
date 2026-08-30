@@ -23,6 +23,7 @@ model User {
   
   sessions Session[]
   courses  Course[]
+  enrollments Enrollment[]
 }
 
 model Session {
@@ -74,7 +75,8 @@ model Course {
   instructor User @relation(fields: [instructorId], references: [id], onDelete: Cascade)
 
   lessons Lesson[]
-
+  enrollments Enrollment[]
+  
   @@index([instructorId])
 
 }
@@ -106,4 +108,21 @@ model Lesson {
 
   @@unique([courseId, order])
 
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+
+  userId    String
+  courseId  String
+
+  enrolledAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
 }
