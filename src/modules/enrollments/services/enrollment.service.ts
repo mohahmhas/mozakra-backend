@@ -26,6 +26,13 @@ export class EnrollmentService {
                 message: 'Course not found.',   
               });
         }
+        if(course.isPublished===false){
+            throw new AppError({
+                statusCode: HTTP_STATUS.FORBIDDEN,
+                code: ERROR_CODES.FORBIDDEN,
+                message: 'This course is not published yet.',
+              });
+        }
         if(course.instructorId===userId){
             throw new AppError({
                 statusCode: HTTP_STATUS.FORBIDDEN,
