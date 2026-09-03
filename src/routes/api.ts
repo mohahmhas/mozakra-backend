@@ -6,6 +6,8 @@ import { courseRouter } from '../modules/courses/index.js';
 import { lessonRouter } from '../modules/lessons/index.js';
 import { enrollmentRouter } from '../modules/enrollments/index.js';
 
+import { progressRouter } from '../modules/progress/index.js';
+
 
 const apiRouter = Router();
 
@@ -18,6 +20,8 @@ apiRouter.use('/courses', courseRouter);
 
 apiRouter.use('/', lessonRouter);
 apiRouter.use('/',enrollmentRouter);
+
+apiRouter.use('/',progressRouter);
 
 
 export default apiRouter;
