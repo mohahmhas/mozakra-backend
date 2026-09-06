@@ -7,6 +7,7 @@ import { lessonRouter } from '../modules/lessons/index.js';
 import { enrollmentRouter } from '../modules/enrollments/index.js';
 
 import { progressRouter } from '../modules/progress/index.js';
+import { quizRouter } from "../modules/quizzes/index.js";
 
 
 const apiRouter = Router();
@@ -22,6 +23,8 @@ apiRouter.use('/', lessonRouter);
 apiRouter.use('/',enrollmentRouter);
 
 apiRouter.use('/',progressRouter);
+
+apiRouter.use('/', quizRouter);
 
 
 export default apiRouter;
