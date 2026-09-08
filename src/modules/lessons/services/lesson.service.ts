@@ -99,6 +99,7 @@ export class LessonService{
 
   async getLessonById(lessonId: string) {
     const lesson=await this.repository.findById(lessonId);
+      console.log('lesson===:', lesson);
       if(!lesson){
         throw new AppError({
           statusCode: HTTP_STATUS.NOT_FOUND,

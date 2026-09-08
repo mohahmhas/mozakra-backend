@@ -8,45 +8,45 @@ import { validate } from '../../../middlewares/validate.middleware.js';
 
 import { createCourseSchema } from '../schema/create-course.schema.js';
 
-const router = Router();
+  const router = Router();
 
-const courseController =
-  new CourseController();
+  const courseController =
+    new CourseController();
 
-router.post(
-  '/',
-  authMiddleware,
-  validate({
-    body: createCourseSchema,
-  }),
-  courseController.createCourse,
-);
+  router.post(
+    '/',
+    authMiddleware,
+    validate({
+      body: createCourseSchema,
+    }),
+    courseController.createCourse,
+  );
 
-router.get(
-  '/my',
-  authMiddleware,
-  courseController.getMyCourses,
-);
+  router.get(
+    '/my',
+    authMiddleware,
+    courseController.getMyCourses,
+  );
 
-router.get(
-  '/:courseId',
-  authMiddleware,
-  courseController.getCourse,
-);
+  router.get(
+    '/:courseId',
+    authMiddleware,
+    courseController.getCourse,
+  );
 
-router.patch( '/:courseId',
-  authMiddleware,
-  validate({
-    body: createCourseSchema,
-  }),
-  courseController.updateCourse,
+  router.patch( '/:courseId',
+    authMiddleware,
+    validate({
+      body: createCourseSchema,
+    }),
+    courseController.updateCourse,
 
-);
+  );
 
-router.delete(
-  '/:courseId',
-  authMiddleware,
-  courseController.deleteCourse,
-)
+  router.delete(
+    '/:courseId',
+    authMiddleware,
+    courseController.deleteCourse,
+  )
 
-export default router;
+  export default router;
