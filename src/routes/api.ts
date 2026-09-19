@@ -20,7 +20,7 @@ apiRouter.use('/users', userRouter);
 apiRouter.use('/courses', courseRouter);
 
 apiRouter.use('/', lessonRouter);
-apiRouter.use('/',enrollmentRouter);
+apiRouter.use('/enrollments',enrollmentRouter);
 
 apiRouter.use('/',progressRouter);
 

@@ -43,6 +43,11 @@ export class SessionController {
       message: "Invalid session ID.",
     });
   }
+
+    await this.service.revokeSession(
+      req.user!.id,
+      sessionId,
+    );
     res.status(200).json({
       success: true,
       message: "Session revoked successfully.",

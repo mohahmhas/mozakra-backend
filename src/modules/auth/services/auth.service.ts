@@ -263,6 +263,14 @@ export class AuthService {
   async logout(refreshToken: string) : Promise<void>{
     const payload = verifyRefreshToken(refreshToken);
     const session = await this.sessionRepository.findById(payload.sessionId);
+       if (!session) {
+      throw new AppError ({
+        statusCode: HTTP_STATUS.NOT_FOUND,      
+        code: ERROR_CODES.SESSION_NOT_FOUND,
+         message: 'Session not found .',
+
+      })
+    }         
     if(session?.userId !== payload.sub){
       throw new AppError({
         statusCode: HTTP_STATUS.UNAUTHORIZED,
@@ -270,14 +278,7 @@ export class AuthService {
         message: 'Unauthorized logout attempt.',
       })
     }
-    if (!session) {
-      throw new AppError ({
-        statusCode: HTTP_STATUS.NOT_FOUND,      
-        code: ERROR_CODES.SESSION_NOT_FOUND,
-         message: 'Session not found .',
-
-      })
-    }
+ 
 
     await this.sessionRepository.delete(session.id);
     

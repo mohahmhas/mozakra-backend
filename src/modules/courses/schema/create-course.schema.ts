@@ -22,6 +22,10 @@ export const createCourseSchema = z.object({
     .number()
     .min(0, 'Price cannot be negative.')
     .default(0),
+
+     isPublished: z
+    .boolean()
+    .optional(),
 });
 
 

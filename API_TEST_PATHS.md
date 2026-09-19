@@ -329,23 +329,11 @@ Headers:
 Authorization: Bearer {{STUDENT_ACCESS_TOKEN}}
 
 
-NOTE:
-Current route mounting is:
-
-apiRouter.use('/', enrollmentRouter)
-
-Therefore this route currently resolves to:
-
-GET /api/
-
-
-Recommended later:
-
 apiRouter.use('/enrollments', enrollmentRouter)
 
-Then it becomes:
 
-GET /api/enrollments
+
+GET /api/enrollment
 
 
 ## Enroll In Course

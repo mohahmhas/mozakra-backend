@@ -20,6 +20,7 @@ const enrollment =
         req.user!.id,
         req.params.courseId as string,
       );
+      console.log('Enrollment:===', enrollment);
   res.status(201).json({
       success: true,
       message: 'Enrolled in course successfully.',
